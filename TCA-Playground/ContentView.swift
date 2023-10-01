@@ -13,6 +13,8 @@ struct CounterFeature: Reducer {
         case decrementButtonTapped
         case getFactButtonTapped
         case toggleTimerButtonTapped
+        
+        case factResponse(fact: String)
     }
     
     var body: some ReducerOf<Self> {
@@ -27,10 +29,21 @@ struct CounterFeature: Reducer {
                 return .none
                 
             case .getFactButtonTapped:
-                return .none
+                return .run { [someNumber = state.number] send in
+                    let (data, _) = try await URLSession.shared.data(
+                        from: URL(string: "http://www.numbersapi.com/\(someNumber)")!
+                    )
+                    let numberFact: String = .init(decoding: data, as: UTF8.self)
+                    
+                    await send(.factResponse(fact: numberFact))
+                }
                 
             case .toggleTimerButtonTapped:
                 state.isTimerOn.toggle()
+                return .none
+                
+            case let .factResponse(fact):
+                state.factString = fact
                 return .none
             }
         }
