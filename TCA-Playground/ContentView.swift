@@ -1,13 +1,9 @@
-//
-//  ContentView.swift
-//  TCA-Playground
-//
-//  Created by 원태영 on 10/1/23.
-//
-
+import ComposableArchitecture
 import SwiftUI
 
 struct ContentView: View {
+    let store: Store<CounterFeature.State, CounterFeature.Action>
+    
     var body: some View {
         VStack {
             Image(systemName: "globe")
