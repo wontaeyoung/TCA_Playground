@@ -32,7 +32,6 @@ struct CounterFeature: Reducer {
             case .toggleTimerButtonTapped:
                 state.isTimerOn.toggle()
                 return .none
-                
             }
         }
     }
@@ -46,6 +45,7 @@ private extension CounterFeature {
 
 struct ContentView: View {
     let store: Store<CounterFeature.State, CounterFeature.Action>
+    let storeOf: StoreOf<CounterFeature>?
     
     var body: some View {
         WithViewStore(self.store) { state in
@@ -78,10 +78,13 @@ struct ContentView: View {
                 }
             }
         }
-        .padding()
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(
+        store: Store(initialState: CounterFeature.State()) {
+            CounterFeature()
+                ._printChanges()
+        }, storeOf: nil)
 }
