@@ -2,7 +2,7 @@ import ComposableArchitecture
 import SwiftUI
 
 struct CounterFeature: Reducer {
-    struct State {
+    struct State: Equatable {
         var number: Int = 0
         var factString: String? = nil
         var isTimerOn: Bool = false
@@ -48,11 +48,35 @@ struct ContentView: View {
     let store: Store<CounterFeature.State, CounterFeature.Action>
     
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        WithViewStore(self.store) { state in
+            return state
+        } content: { viewStore in
+            Form {
+                Section {
+                    Text("\(viewStore.number)")
+                    Button("Decrement") {
+                        viewStore.send(.decrementButtonTapped)
+                    }
+                    Button("Increment") {
+                        viewStore.send(.incrementButtonTapped)
+                    }
+                }
+                
+                Section {
+                    Button("Get fact") {
+                        viewStore.send(.getFactButtonTapped)
+                    }
+                    if let fact = viewStore.factString {
+                        Text(fact)
+                    }
+                }
+                
+                Section {
+                    Button(viewStore.isTimerOn ? "Stop Timer" : "Start Timer") {
+                        viewStore.send(.toggleTimerButtonTapped)
+                    }
+                }
+            }
         }
         .padding()
     }
