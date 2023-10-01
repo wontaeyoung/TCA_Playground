@@ -61,9 +61,10 @@ struct ContentView: View {
     let storeOf: StoreOf<CounterFeature>?
     
     var body: some View {
-        WithViewStore(self.store) { state in
-            return state
-        } content: { viewStore in
+        WithViewStore(
+            self.store,
+            observe: { $0 }
+        ) { viewStore in
             Form {
                 Section {
                     Text("\(viewStore.number)")
