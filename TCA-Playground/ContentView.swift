@@ -6,6 +6,7 @@ struct CounterFeature: Reducer {
         var number: Int = 0
         var factString: String? = nil
         var isTimerOn: Bool = false
+        var isLoadingFact: Bool = false
     }
     
     enum Action {
@@ -15,6 +16,7 @@ struct CounterFeature: Reducer {
         case toggleTimerButtonTapped
         
         case factResponse(fact: String)
+        case timerTicked
     }
     
     var body: some ReducerOf<Self> {
@@ -22,13 +24,17 @@ struct CounterFeature: Reducer {
             switch action {
             case .incrementButtonTapped:
                 state.number += 1
+                
                 return .none
                 
             case .decrementButtonTapped:
                 decreaseNumber(num: &state.number)
+                
                 return .none
                 
             case .getFactButtonTapped:
+                state.isLoadingFact = true
+                
                 return .run { [someNumber = state.number] send in
                     let sleepTime: UInt64 = 1 * 1_000_000_000
                     try await Task.sleep(nanoseconds: sleepTime)
@@ -38,10 +44,28 @@ struct CounterFeature: Reducer {
                 
             case .toggleTimerButtonTapped:
                 state.isTimerOn.toggle()
-                return .none
+                
+                if state.isTimerOn {
+                    return .run { send in
+                        while true {
+                            try await Task.sleep(for: .seconds(1))
+                            await send(.timerTicked)
+                        }
+                    }
+                    .cancellable(id: CancelID.timer)
+                } else {
+                    return .cancel(id: CancelID.timer)
+                }
                 
             case let .factResponse(fact):
+                state.isLoadingFact = false
                 state.factString = fact
+                
+                return .none
+                
+            case .timerTicked:
+                state.number += 1
+                
                 return .none
             }
         }
@@ -51,6 +75,10 @@ struct CounterFeature: Reducer {
 private extension CounterFeature {
     func decreaseNumber(num: inout Int) {
         num -= 1
+    }
+    
+    enum CancelID {
+        case timer
     }
 }
 
@@ -75,8 +103,14 @@ struct ContentView: View {
                 }
                 
                 Section {
-                    Button("Get fact") {
-                        viewStore.send(.getFactButtonTapped)
+                    HStack {
+                        Button("Get fact") {
+                            viewStore.send(.getFactButtonTapped)
+                        }
+                        if viewStore.isLoadingFact {
+                            Spacer()
+                            ProgressView()
+                        }
                     }
                     if let fact = viewStore.factString {
                         Text(fact)
