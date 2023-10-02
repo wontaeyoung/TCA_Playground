@@ -31,3 +31,27 @@ Reducer<CounterFeature.State, CounterFeature.Action>
 → 
 ReducerOf<CounterFeature>
 ```
+
+# Equatable
+
+WithViewStore를 사용하기 위해서는 State가 Equatable을 준수해야한다.
+
+- K: 포인트프리 튜토리얼에 printchanges 관련 내용으로 `값 타입은 참조와 달리 변경 전 값을 복사해서 변경 후 값과 비교할 수 있는 장점이 있다`는 언급이 있는데, 여기에 Equatable이 필요한 걸수도 있겠다.
+
+
+# inout 파라미터와 클로저
+
+inout 파라미터는 함수 내부의 또 다른 비동기 / 동시성 클로저에서 접근할 수 없다. inout 변수는 해당 함수에서만 임시적으로 수정할 수 있는 값 타입의 참조를 제공하며, 함수 내부에서 또 다른 클로저가 이에 접근하는 것은 쓰레드 세이프하지 않으며, 레이스 컨디션을 일으킬 수 있기 때문이다.
+
+```swift
+case .getFactButtonTapped:
+  return .run { [count = state.count] send in
+    try await URLSession.shared.data(
+      from: URL(
+        string: "http://www.numbersapi.com/\(count)"
+      )!
+    )
+  }
+```
+
+그래서 위와 같은 방식으로 클로저 내부에서 캡처 리스트에 현재 외부 값을 한번 캡쳐한 다음에 사용함으로써 이러한 문제를 방지한다.
