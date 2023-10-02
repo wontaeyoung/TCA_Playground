@@ -149,3 +149,22 @@ public final class Store<State, Action> {
 ```
 
 위는 `Store`의 내부 구조다. `reducer` 프로퍼티를 초기화하기 위해 이니셜라이저에서 `reducer () → R` 클로저를 전달받고, `Reducer` 인스턴스를 생성할 때, `Reducer`에 포함된 `State`와 `Action`이 전달되면서 제네릭의 타입을 추론하게된다.
+
+
+# send의 await과 실행 순서
+
+```swift
+case .getFactButtonTapped:
+    return .run { [someNumber = state.number] send in
+        let (data, _) = try await URLSession.shared.data(
+            from: URL(string: "http://www.numbersapi.com/\(someNumber)")!
+        )
+        let numberFact: String = .init(decoding: data, as: UTF8.self)
+        
+        await send(.factResponse(fact: numberFact))
+        
+        print("1")
+    }
+```
+
+위처럼 `await send`를 호출하게 되면, `send`에 전달된 `action`의 로직이 모두 수행되고 나서 이어서 수행된다. 결과적으로 `print(”1”)`는 `factResponse`의 로직이 모두 수행된 뒤 출력된다.
