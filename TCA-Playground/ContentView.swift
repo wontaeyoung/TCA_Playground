@@ -9,7 +9,7 @@ struct CounterFeature: Reducer {
         var isLoadingFact: Bool = false
     }
     
-    enum Action {
+    enum Action: Equatable {
         case incrementButtonTapped
         case decrementButtonTapped
         case getFactButtonTapped
