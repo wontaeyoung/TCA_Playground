@@ -30,11 +30,9 @@ struct CounterFeature: Reducer {
                 
             case .getFactButtonTapped:
                 return .run { [someNumber = state.number] send in
-                    let (data, _) = try await URLSession.shared.data(
-                        from: URL(string: "http://www.numbersapi.com/\(someNumber)")!
-                    )
-                    let numberFact: String = .init(decoding: data, as: UTF8.self)
-                    
+                    let sleepTime: UInt64 = 1 * 1_000_000_000
+                    try await Task.sleep(nanoseconds: sleepTime)
+                    let numberFact: String = someNumber.description + " 응답 받았습니다."
                     await send(.factResponse(fact: numberFact))
                 }
                 
