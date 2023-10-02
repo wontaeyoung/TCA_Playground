@@ -103,3 +103,17 @@ static func run(
 ```swift
 typealias Send<Action> = (Action) -> Void
 ```
+
+위에서 설명한 것처럼 클로저가 비동기 블록이기 때문에, `send` 클로저를 사용하려면 `await`이 필요하다.
+
+만약 `run` 스코프 내에서 동기적으로 `send`를 사용하고싶지 않다면, 아래 방식처럼 `Task` 블록으로 감싸서 사용해야한다.
+
+```swift
+Effect.run { send in
+    Task {
+        await send(.someAction)
+    }
+        await send(.anotherAction)
+    return .none
+}
+```
