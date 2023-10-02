@@ -76,3 +76,30 @@ case .getFactButtonTapped:
 - **`inout`**를 사용해서 값 타입인 **`State`**가 참조 타입처럼 동작시킬 수 있다. 그래서 **`Reducer`**의 **`Action`** 내에서 **`State`**의 수정은 원래 **`State`**에도 영향을 준다. 반대로 **`Reducer`**가 아니면 의도적으로 **`State`**를 **`inout`**으로 전달하지 않는 이상 값 타입으로 동작하므로 다른 책임에서의 상태 변경을 방지할 수 있다.
 
 요약하면 TCA는 값 타입의 안정성과 참조 타입의 편리성을 모두 활용하여 상태를 안전하게 관리한다!
+
+# **Effect의 run 함수**
+
+## **궁금점**
+
+1. **`Send<Action>`**은 구조체나 클래스처럼 생겼는데 정체가 무엇인가?
+2. **`send`**가 클로저라면 **`run`**의 **`operation`** 클로저 내부에서 필요한만큼 **`send`**를 통해 추가 액션을 전달할 수 있는것인가?
+
+```swift
+static func run(
+    priority: TaskPriority? = nil,
+    operation: @escaping (Send<CounterFeature.Action>) async throws -> Void,
+    catch handler: ((Error, Send<CounterFeature.Action>) async -> Void)? = nil,
+    fileID: StaticString = #fileID,
+    line: UInt = #line
+) -> Effect<CounterFeature.Action>
+```
+
+**`operation`** 클로저를 작성해서 사용한다. 파라미터인 **`send`**는 **Action** 타입을 받는 클로저이며, **`send`**를 통해서 원하는만큼 추가적인 다른 액션을 수행할 수 있다.
+
+클로저가 async로 선언되어 있기 때문에 비동기로 작동하며, 발생하는 에러에 대해서 catch 클로저에서 처리할 수 있다.
+
+**`Send<Action>`**이 클로저라면 반환 타입이 존재해야하는데, 실제로 암묵적으로 작성된 것으로 보이며 내부 타입 선언을 추론해보면 아래와 같을 것 같다.
+
+```swift
+typealias Send<Action> = (Action) -> Void
+```
