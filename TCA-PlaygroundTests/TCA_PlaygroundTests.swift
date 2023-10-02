@@ -39,15 +39,34 @@ final class TCA_PlaygroundTests: XCTestCase {
         }
     }
     
-    func test타이머가토글되면값이변경된다() async {
+    func test타이머가토글되면값이변경된다() async throws {
         let store = TestStore(
             initialState: CounterFeature.State()
         ) {
             CounterFeature()
         }
         
+        // 타이머 동작
         await store.send(.toggleTimerButtonTapped) { state in
             state.isTimerOn = true
+        }
+        
+        // 1.1초 대기
+        try await Task.sleep(for: .milliseconds(1_100))
+        
+        //
+        await store.receive(.timerTicked) {
+            $0.number = 1
+        }
+        
+        try await Task.sleep(for: .milliseconds(1_100))
+        await store.receive(.timerTicked) {
+            $0.number = 2
+        }
+        
+        // 타이머 해제
+        await store.send(.toggleTimerButtonTapped) { state in
+            state.isTimerOn = false
         }
     }
     
