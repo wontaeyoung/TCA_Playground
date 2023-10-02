@@ -27,10 +27,15 @@ final class TCA_PlaygroundTests: XCTestCase {
         
         await store.send(.incrementButtonTapped) { state in
             state.number = 1
+            state.factString = nil
         }
         
         await store.send(.decrementButtonTapped) { state in
             state.number = 0
+        }
+        
+        await store.send(.factResponse(fact: "A")) {
+            $0.factString = "B"
         }
     }
     
