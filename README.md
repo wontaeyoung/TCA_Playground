@@ -117,3 +117,35 @@ Effect.run { send in
     return .none
 }
 ```
+
+# Store의 이니셜라이징
+
+```swift
+// 파라미터 선언
+let store: Store<CounterFeature.State, CounterFeature.Action>
+
+// 초기화
+ContentView(
+    store: Store(initialState: CounterFeature.State()) {
+        CounterFeature()
+    }, storeOf: nil
+)
+```
+
+## 궁금점
+
+`Store<CounterFeature.State, CounterFeature.Action>` 타입에 `Store(initialState: , reducer: )`를 통해 초기화하는데, reducer에 전달한 아규먼트로 제네릭으로 선언된 State와 Action의 추론이 가능해지는 것인가?
+
+```swift
+public final class Store<State, Action> {
+  ...
+  private let reducer: any Reducer<State, Action>
+  ...
+  public convenience init<R: Reducer>(
+    initialState: @autoclosure () -> R.State,
+    @ReducerBuilder<State, Action> reducer: () -> R,
+    withDependencies prepareDependencies: ((inout DependencyValues) -> Void)? = nil
+  )
+```
+
+위는 `Store`의 내부 구조다. `reducer` 프로퍼티를 초기화하기 위해 이니셜라이저에서 `reducer () → R` 클로저를 전달받고, `Reducer` 인스턴스를 생성할 때, `Reducer`에 포함된 `State`와 `Action`이 전달되면서 제네릭의 타입을 추론하게된다.
