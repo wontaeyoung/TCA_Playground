@@ -168,3 +168,24 @@ case .getFactButtonTapped:
 ```
 
 위처럼 `await send`를 호출하게 되면, `send`에 전달된 `action`의 로직이 모두 수행되고 나서 이어서 수행된다. 결과적으로 `print(”1”)`는 `factResponse`의 로직이 모두 수행된 뒤 출력된다.
+
+
+# Store의 State와 Reducer의 출처 일치
+
+```swift
+// initialState와 Reducer를 서로 다른 객체로 전달하는 케이스 -> 실패
+let store: Store<CounterFeature.State, PostFeature.Action>
+
+ContentView(
+        store: Store(initialState: CounterFeature.State()) {
+            PostFeature()
+        }, storeOf: nil)
+```
+
+`Static method 'buildExpression' requires the types 'CounterFeature.State' and 'PostFeature.State' be equivalent`
+
+만약 `Store`를 `init`할 때, `State`의 `Reducer`와 `reducer` 파라미터에 전달하는 `Reducer`가 서로 다른 객체라면 위의 에러가 발생한다.
+
+`Store`가 `Reducer`를 활용해서 `State`를 업데이트하기 때문에 필요한 요구사항이다.
+
+두 타입이 다르다면 `Reducer`의 `Action`으로 `initialState`를 올바르게 변경할 수 없기 때문이다.
