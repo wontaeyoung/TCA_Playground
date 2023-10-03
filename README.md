@@ -6,8 +6,9 @@ TCA는 State, Action, Reducer, Environment, Store와 같은 객체들의 상호�
     - 비즈니스 로직이나 UI에 필요한 데이터 혹은 상태를 설명하는 타입
 - Action
     - 사용자 혹은 어플리케이션이 발생시킬 수 있는 모든 행동
-- Environment
+- Environment -> Dependency
     - HTTP Client, Manager와 같이 어플리케이션이 필요로 하는 다른 혹은 외부 의존성을 관리하는 타입
+    - 1.0.0으로 오면서 Dependency로 변경되었다.
 - Reducer
     - Action에 대해서 State를 변경하는 로직을 가지고있는 타입
     - 추가적으로 다른 Action 혹은 Effect를 반환하며, 일반적으로 Effect를 반환함
