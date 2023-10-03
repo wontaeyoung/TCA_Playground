@@ -190,3 +190,15 @@ ContentView(
 `Store`가 `Reducer`를 활용해서 `State`를 업데이트하기 때문에 필요한 요구사항이다.
 
 두 타입이 다르다면 `Reducer`의 `Action`으로 `initialState`를 올바르게 변경할 수 없기 때문이다.
+
+
+# Store와 ViewStore의 관계
+
+```swift
+WithViewStore(self.store) { state in
+        return state
+} content: { viewStore in
+```
+
+- `WithViewStore`에 전달한 `store`는 내부적으로 `ViewStore`로 변환되어 `content`(SwiftUI VIew)에 파라미터로 제공된다.
+- `Store`와 `ViewStore`는 참조 관계로 `ViewStore` 내부에 `Store`의 참조를 가지고 있어서, `Store`의 상태를 관찰하고 `Action`을 `Store`로 전달할 수 있는 것이다.
