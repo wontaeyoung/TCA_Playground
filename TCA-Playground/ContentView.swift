@@ -34,12 +34,12 @@ struct CounterFeature: Reducer {
                 
             case .getFactButtonTapped:
                 state.isLoadingFact = true
+                @Dependency(\.numberFact) var numberFact: NumberFactClient
                 
                 return .run { [someNumber = state.number] send in
-                    let sleepTime: UInt64 = 1 * 1_000_000_000
-                    try await Task.sleep(nanoseconds: sleepTime)
-                    let numberFact: String = someNumber.description + " 응답 받았습니다."
-                    await send(.factResponse(fact: numberFact))
+                    let numberFactResult: String = try await numberFact.fetch(someNumber)
+                    
+                    await send(.factResponse(fact: numberFactResult))
                 }
                 
             case .toggleTimerButtonTapped:
