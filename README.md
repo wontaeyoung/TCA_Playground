@@ -236,3 +236,28 @@ WithViewStore<State>(
 - 뷰가 관심을 가지는 상태의 부분만 변경될 때 뷰를 업데이트할 수 있다.
 
 따라서 `observe`는 `State`를 `View`에 필요한 `State`로 변환하는 변환기 역할을 한다.
+
+
+## observe 동작 순서
+
+`Action` 발생 → `State` 업데이트 → `Observe`에 전달 → `ViewState`로 변경되어 `ViewStore`에 전달 → `View` 업데이트
+
+**Action 발생**
+
+- 뷰에서 사용자 입력 또는 외부 이벤트로 인해 액션이 발생한다.
+
+**State 업데이트**
+
+- **`Reducer`**는 발생한 **`Action`**을 받아 현재의 **`State`**를 업데이트한다.
+
+**Observe**
+
+- **`State`**가 업데이트 되면, **`observe`** 클로저가 호출된다. 이 클로저는 전체 **`State`**를 받아 필요한 **`ViewState`**로 변환한다.
+
+**ViewState로 변경**
+
+- 변환된 뷰 상태는 **`WithViewStore`** 내부의 **`ViewStore`**의 상태로 설정된다.
+
+**View 업데이트**
+
+- **`ViewStore`**의 상태 변경을 통해 SwiftUI 뷰는 자동으로 다시 그려진다.
