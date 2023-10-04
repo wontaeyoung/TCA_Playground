@@ -82,7 +82,7 @@ private extension CounterFeature {
     }
 }
 
-struct ContentView: View {
+struct TourView: View {
     let store: Store<CounterFeature.State, CounterFeature.Action>
     let storeOf: StoreOf<CounterFeature>?
     
@@ -128,7 +128,7 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(
+    TourView(
         store: Store(initialState: CounterFeature.State()) {
             CounterFeature()
                 ._printChanges()
