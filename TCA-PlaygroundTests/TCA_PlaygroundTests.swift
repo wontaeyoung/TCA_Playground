@@ -92,4 +92,23 @@ final class TCA_PlaygroundTests: XCTestCase {
             $0.factString = "0 is a great number!"
         }
     }
+    
+    func test숫자값에대한외부요청을수행해서값을가져온다_실패() async {
+        let store: TestStore = .init(
+            initialState: CounterFeature.State()
+        ) {
+            CounterFeature()
+        } withDependencies: {
+            $0.numberFact.fetch = { number in
+                struct SomeError: Error { }
+                throw SomeError()
+            }
+        }
+        
+        XCTExpectFailure()
+        
+        await store.send(.getFactButtonTapped) { state in
+            state.isLoadingFact = true
+        }
+    }
 }
