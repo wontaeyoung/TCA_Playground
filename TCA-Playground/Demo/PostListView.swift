@@ -4,9 +4,9 @@ import SwiftUI
 let loginAuthor: Author = .init(name: "카즈")
 
 struct AlertState: Equatable {
-    var isShowingAlert: Bool = false
-    var alertTitle: String = ""
-    var alertMessage: String = ""
+    var isShowing: Bool = false
+    var title: String = ""
+    var message: String = ""
 }
 
 struct PostFeature: Reducer {
@@ -64,8 +64,8 @@ private extension PostFeature {
         title: String,
         message: String
     ) {
-        alertState.alertTitle = title
-        alertState.alertMessage = message
-        alertState.isShowingAlert = true
+        alertState.title = title
+        alertState.message = message
+        alertState.isShowing = true
     }
 }
