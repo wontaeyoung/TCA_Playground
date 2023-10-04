@@ -78,14 +78,18 @@ final class TCA_PlaygroundTests: XCTestCase {
             CounterFeature()
         } withDependencies: {
             $0.continuousClock = ImmediateClock()
+            $0.numberFact.fetch = { number in
+                "\(number) is a great number!"
+            }
         }
         
         await store.send(.getFactButtonTapped) { state in
             state.isLoadingFact = true
         }
         
-        await store.receive(.factResponse(fact: "TestString")) {
-          $0.isLoadingFact = false
+        await store.receive(.factResponse(fact: "0 is a great number!")) {
+            $0.isLoadingFact = false
+            $0.factString = "0 is a great number!"
         }
     }
 }
