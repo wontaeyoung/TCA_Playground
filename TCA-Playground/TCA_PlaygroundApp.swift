@@ -5,7 +5,7 @@ import SwiftUI
 struct TCA_PlaygroundApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView(
+            TourView(
                 store: Store(initialState: CounterFeature.State()) {
                     CounterFeature()
                 }, storeOf: nil
