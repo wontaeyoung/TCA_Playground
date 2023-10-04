@@ -202,3 +202,37 @@ WithViewStore(self.store) { state in
 
 - `WithViewStore`에 전달한 `store`는 내부적으로 `ViewStore`로 변환되어 `content`(SwiftUI VIew)에 파라미터로 제공된다.
 - `Store`와 `ViewStore`는 참조 관계로 `ViewStore` 내부에 `Store`의 참조를 가지고 있어서, `Store`의 상태를 관찰하고 `Action`을 `Store`로 전달할 수 있는 것이다.
+
+
+# WithViewStore의 observe
+
+## observe의 역할
+
+```swift
+// 초기화
+WithViewStore<State>(
+    store: Store,
+    observe: State -> ViewState,
+    content: ViewStore -> View
+)
+```
+
+`observe`는 `State`를 받아서 UI에서 사용할 보다 구체적인 `State`로 변환하는 역할을 수행한다.
+
+`observe`를 통해서 변환된 `ViewState`는 `content`의 `ViewStore`로 전달되어 `View`를 그리는데 사용된다.
+
+이를 통해 아래의 장점을 얻을 수 있다.
+
+**분리된 관심사**
+
+- 뷰가 필요로 하는 정확한 데이터만 뷰에 제공되도록 할 수 있다.
+
+**재사용성**
+
+- 동일한 상태를 다양한 뷰 상태로 변환하여 여러 뷰에 사용할 수 있다.
+
+**효율성**
+
+- 뷰가 관심을 가지는 상태의 부분만 변경될 때 뷰를 업데이트할 수 있다.
+
+따라서 `observe`는 `State`를 `View`에 필요한 `State`로 변환하는 변환기 역할을 한다.
