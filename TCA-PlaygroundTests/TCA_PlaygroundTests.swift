@@ -70,4 +70,22 @@ final class TCA_PlaygroundTests: XCTestCase {
             state.isTimerOn = false
         }
     }
+    
+    func test숫자값에대한외부요청을수행해서값을가져온다() async {
+        let store: TestStore = .init(
+            initialState: CounterFeature.State()
+        ) {
+            CounterFeature()
+        } withDependencies: {
+            $0.continuousClock = ImmediateClock()
+        }
+        
+        await store.send(.getFactButtonTapped) { state in
+            state.isLoadingFact = true
+        }
+        
+        await store.receive(.factResponse(fact: "TestString")) {
+          $0.isLoadingFact = false
+        }
+    }
 }
