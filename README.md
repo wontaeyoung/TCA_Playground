@@ -328,3 +328,21 @@ case .getFactButtonTapped:
 이렇게 state를 변경하기 위한 다른 action을 정의하고, effect 내부에서 send를 통해 새로운 액션을 수행함으로써 우회해서 state 업데이트 동작을 수행할 수 있다.
 
 번거로워보이지만, 값 타입의 안정성과 참조 타입의 편리함을 모두 누리기 위한 트레이드 오프임을 감안하자.
+
+
+
+# TestStore의 receive
+
+`Action`들이 `Store`에 전달되었는지를 검증하는데 사용한다.
+
+TestStore는 내부적으로 `send`된 `action`과 그 과정에서 발생하는 `action`을 로그에 남긴다.
+
+로그는 `Queue`나 배열 형태로 추정된다.
+
+`receive` 함수가 호출되면 큐의 가장 앞에 있는(가장 최근에 발생한) `action`을 가져와서 전달받은 `action`과의 일치여부를 검사한다.
+
+일치하지 않은 테스트 실패로 간주한다.
+
+그렇기 때문에 `Reducer`와 `Effect`가 예상한 순서대로 `Action`을 처리하고 있는지 검증할 수 있다.
+
+그래서 `receive`의 호출 시점이 중요하다.
