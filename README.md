@@ -346,3 +346,15 @@ TestStore는 내부적으로 `send`된 `action`과 그 과정에서 발생하는
 그렇기 때문에 `Reducer`와 `Effect`가 예상한 순서대로 `Action`을 처리하고 있는지 검증할 수 있다.
 
 그래서 `receive`의 호출 시점이 중요하다.
+
+
+`TestStore`의 `receiveAction` 메서드 내용을 보면 다음과 같은 로직으로 예상된다.
+
+1. **receivedActions 큐**
+    - **`self.reducer.receivedActions`**는 액션을 로깅하기 위한 배열이나 큐로 예상된다. 해당 배열에는 액션들이 순서대로 저장되어 있고, 이 배열을 통해 예상되는 액션과 실제로 수신된 액션을 비교한다.
+2. **액션의 유무 확인**
+    - **`guard !self.reducer.receivedActions.isEmpty else {...}`** 부분에서 **`receivedActions`** 큐에 액션이 있는지 확인하고, 만약 큐가 비어있으면 테스트 실패를 반환한다.
+3. **액션 검사**
+    - 액션의 유무를 확인한 후, **`self.reducer.receivedActions.contains(where: { predicate($0.action) })`**을 사용하여 큐에 기대되는 액션이 있는지 검사한다. 이 검사는 전달된 **`predicate`** 함수를 사용하여 수행된다.
+4. **액션 처리**
+    - **`self.reducer.receivedActions.removeFirst()`**를 사용하여 **`receivedActions`** 큐의 맨 앞에 있는 액션을 가져와 처리한다. 이 액션이 예상되는 액션과 일치하는지 (또는 일치하지 않는지) 확인하고 그에 따라 다양한 로직을 수행한다.
