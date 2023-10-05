@@ -281,3 +281,50 @@ SwiftUI는 이미 상태가 업데이트 될 때 `View`가 재렌더링 되는 �
 
 K: `observe`에서는 `State` → `ViewState`로 변환하는 과정에서 `View`에 표시하기 적절한 형태로 변환하는 작업도 가능하지만, 모든 프로퍼티가 같은 `observe` 클로저를 공유하기 때문에 실제로는 활용하기가 어렵다.
 오히려 성능 최적화를 위해 필요한 상태만 감지하도록 하는 것에 더 초점이 맞춰져 있는 것 같다.
+
+
+# Effect에서 State를 변경하려면
+
+```swift
+case .getFactButtonTapped:
+    return .run { [someNumber = state.number] send in
+        let (data, _) = try await URLSession.shared.data(
+            from: URL(string: "http://www.numbersapi.com/\(someNumber)")!
+        )
+        let numberFact: String = .init(decoding: data, as: UTF8.self)
+        
+        state.factString = numberFact
+    }
+```
+
+`Mutable capture of 'inout' parameter 'state' is not allowed in concurrently-executing code`
+
+위와 같이 state를 run의 operation 클로저에서 변경하려고 하면 위와 같은 오류가 발생한다.
+
+내부 클로저에서 inout 값을 변경하려고 하면 충돌이 발생하기 때문이다.
+
+이는 위 항목 중 `inout 파라미터와 클로저`와 동일한 내용이며, 값의 읽기가 필요한 경우에도 값을 캡쳐해서 사용했었다.
+
+하지만 이번처럼 state를 변경하는 쓰기를 하려면 어떻게 할까?
+
+```swift
+case factResponse(fact: String)
+
+case let .factResponse(fact):
+    state.factString = fact
+    return .none
+
+case .getFactButtonTapped:
+    return .run { [someNumber = state.number] send in
+        let (data, _) = try await URLSession.shared.data(
+            from: URL(string: "http://www.numbersapi.com/\(someNumber)")!
+        )
+        let numberFact: String = .init(decoding: data, as: UTF8.self)
+        
+        await send(.factResponse(fact: numberFact))
+    }
+```
+
+이렇게 state를 변경하기 위한 다른 action을 정의하고, effect 내부에서 send를 통해 새로운 액션을 수행함으로써 우회해서 state 업데이트 동작을 수행할 수 있다.
+
+번거로워보이지만, 값 타입의 안정성과 참조 타입의 편리함을 모두 누리기 위한 트레이드 오프임을 감안하자.
