@@ -11,7 +11,7 @@ struct AlertState: Equatable {
 
 struct PostFeature: Reducer {
     struct State: Equatable {
-        var posts: IdentifiedArrayOf<Post> = []
+        var posts: IdentifiedArrayOf<Post> = [Post(author: loginAuthor)]
         var alertState: AlertState = .init()
     }
     
