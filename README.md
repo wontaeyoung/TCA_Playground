@@ -391,3 +391,38 @@ extension DependencyValues {
 // 의존성 인스턴스 사용
 @Dependency(\.numberFact) var numberFact
 ```
+
+
+# 테스트 환경에서의 검증 대상
+
+```swift
+func test숫자값에대한외부요청을수행해서값을가져온다() async {
+        let store: TestStore = .init(
+            initialState: CounterFeature.State()
+        ) {
+            CounterFeature()
+        } withDependencies: {
+            $0.continuousClock = ImmediateClock()
+            $0.numberFact.fetch = { number in
+                "\(number) is a great number!"
+            }
+        }
+        
+        await store.send(.getFactButtonTapped) { state in
+            state.isLoadingFact = true
+        }
+        
+        await store.receive(.factResponse(fact: "0 is a great number!")) {
+            $0.isLoadingFact = false
+            $0.factString = "0 is a great number!"
+        }
+    }
+```
+
+위와 같은 로직이 있을 때, `fetch`에 전달되는 문자열을 A, `receive`의 `factResponse`에 전달되는 문자열을 B, `receive` 클로저에서 `factString`에 예상하는 문자열을 C라고할 때 비교 로직은 아래와 같다.
+
+- A는 `getFactButtonTapped` 액션이 발생했을 때, `send Effect`로 인해 `factResponse`에 연관값으로 전달된다.
+- B는 위 과정에서 전달된 A와 비교를 검증한다. 즉, `receive`는 `factResponse`에 연관값으로 전달한 B를 실제로 B에 들어오는 연관값과 비교하는 것이다.
+- C는 A, B와 직접적으로 비교하는 것은 아니다. 단지 `receive` 클로저가 수행되는 시점에 `factString`의 값이 예상되는 C와 같은지를 검증하는 것이다.
+
+내가 작성한 로직에 한해서는 A가 당연히 C와 같겠지만, `factResponse`에서 `factString`에 또 다른 값을 할당한다던지 하면 A == B != C의 가능성도 존재한다.
