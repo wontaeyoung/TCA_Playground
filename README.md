@@ -358,3 +358,36 @@ TestStore는 내부적으로 `send`된 `action`과 그 과정에서 발생하는
     - 액션의 유무를 확인한 후, **`self.reducer.receivedActions.contains(where: { predicate($0.action) })`**을 사용하여 큐에 기대되는 액션이 있는지 검사한다. 이 검사는 전달된 **`predicate`** 함수를 사용하여 수행된다.
 4. **액션 처리**
     - **`self.reducer.receivedActions.removeFirst()`**를 사용하여 **`receivedActions`** 큐의 맨 앞에 있는 액션을 가져와 처리한다. 이 액션이 예상되는 액션과 일치하는지 (또는 일치하지 않는지) 확인하고 그에 따라 다양한 로직을 수행한다.
+
+
+# 객체를 Dependency에 추가하기
+
+```swift
+// 새롭게 추가할 커스텀 객체
+struct NumberFactClient {
+    var fetch: @Sendable (Int) async throws -> String
+}
+
+// DependencyKey 프로토콜을 채택
+extension NumberFactClient: DependencyKey {
+    static let liveValue: NumberFactClient = .init(
+        fetch: { number in
+            try await Task.sleep(for: .seconds(1))
+            let numberFact: String = number.description + " 응답 받았습니다."
+            
+            return numberFact
+        }
+    )
+}
+
+// DependencyValues에 등록
+extension DependencyValues {
+    var numberFact: NumberFactClient {
+        get { self[NumberFactClient.self] }
+        set { self[NumberFactClient.self] = newValue }
+    }
+}
+
+// 의존성 인스턴스 사용
+@Dependency(\.numberFact) var numberFact
+```
