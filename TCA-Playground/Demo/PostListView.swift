@@ -17,7 +17,6 @@ struct PostFeature: Reducer {
     
     enum Action: Equatable {
         case addButtonTapped
-        
         case showingAlert(title: String, message: String)
         case postDetailAction(PostDetailFeature.Action)
     }
@@ -74,5 +73,38 @@ private extension PostFeature {
         alertState.title = title
         alertState.message = message
         alertState.isShowing = true
+    }
+}
+
+struct PostListView: View {
+    let store: StoreOf<PostFeature> = .init(
+        initialState: PostFeature.State()
+    ) {
+        PostFeature()
+    }
+    
+    var body: some View {
+        WithViewStore(
+            self.store,
+            observe: { $0 }
+        ) { viewStore in
+            NavigationStack {
+                List {
+                    ForEach(viewStore.posts) { post in
+                        NavigationLink {
+                            PostDetailView(
+                                store: store.scope { _ in
+                                    PostDetailFeature.State(post: post)
+                                } action: { childAction in
+                                    .postDetailAction(childAction)
+                                }
+                            )
+                        } label: {
+                            Text(post.title)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
