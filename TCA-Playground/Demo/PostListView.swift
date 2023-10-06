@@ -19,6 +19,7 @@ struct PostFeature: Reducer {
         case addButtonTapped
         
         case showingAlert(title: String, message: String)
+        case postDetailAction(PostDetailFeature.Action)
     }
     
     var body: some ReducerOf<Self> {
@@ -40,6 +41,12 @@ struct PostFeature: Reducer {
                     title: title,
                     message: message)
                 
+                return .none
+                
+                // MARK: - DetailFeature 처리
+            case let .postDetailAction(.saveButtonTapped(updatedPost)):
+                print("출력! \n", updatedPost.title)
+                state.posts[id: updatedPost.id] = updatedPost
                 
                 return .none
             }
